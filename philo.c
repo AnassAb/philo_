@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 17:14:07 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/24 19:45:50 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/24 21:52:48 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define NBR 5
+#define NBR 3
 #define TIME_TO_DIE 600
 #define TIME_TO_EAT 200
 #define TIME_TO_SLEEP 100
-#define NBR_OF_MEALS -1
+#define NBR_OF_MEALS 1
 
 #define C_EAT "\033[0;32m" //EAT
 #define C_DIED "\033[0;31m" //DIED
@@ -33,9 +33,14 @@ typedef struct s_data
     pthread_mutex_t forks[NBR];
     pthread_mutex_t time_lock;
     pthread_mutex_t death_lock;
+    pthread_mutex_t finished_lock;
+    pthread_mutex_t meals_lock;
+    pthread_mutex_t end_lock;
     pthread_mutex_t print_lock;
     pthread_t sup_tid;
+    pthread_t mon_tid;
     int death;
+    int end;
 }   t_data;
 
 typedef struct s_philo
@@ -45,7 +50,8 @@ typedef struct s_philo
     pthread_mutex_t *l_fork;
     pthread_mutex_t *r_fork;
     size_t last_meal;
-    int death;
+    int nbr_meals;
+    int finished;
     t_data  *data;
 }   t_philo;
 
@@ -72,6 +78,18 @@ void    ft_sleep(size_t time_ms)
 		usleep(time_ms / 10);
 }
 
+int check_end(t_philo *philo)
+{
+    pthread_mutex_lock(&philo->data->end_lock);
+    if (philo->data->end == NBR)
+    {
+        pthread_mutex_unlock(&philo->data->end_lock);
+        return (1);
+    }
+    pthread_mutex_unlock(&philo->data->end_lock);
+    return (0);
+}
+
 int check_death(t_philo *philo)
 {
     pthread_mutex_lock(&philo->data->death_lock);
@@ -91,6 +109,8 @@ int    message (t_philo *philo, char *state, char *color)
     pthread_mutex_lock(&philo->data->print_lock);
     printf("%s%zu %d %s\n%s", color, get_timestamp(philo->data->start_time, get_current_time()), philo->id, state, C_NC);
     pthread_mutex_unlock(&philo->data->print_lock);
+    if (check_end(philo))
+        return (1);
     return (0);
 }
 
@@ -115,6 +135,9 @@ int     _eat(t_philo *philo)
     pthread_mutex_lock(&philo->data->time_lock);
     philo->last_meal = get_current_time();
     pthread_mutex_unlock(&philo->data->time_lock);
+    pthread_mutex_lock(&philo->data->meals_lock);
+    philo->nbr_meals++;
+    pthread_mutex_unlock(&philo->data->meals_lock);
     ft_sleep(TIME_TO_EAT);
     pthread_mutex_unlock(philo->r_fork);
     pthread_mutex_unlock(philo->l_fork);
@@ -175,16 +198,71 @@ void    *supervisor(void *data)
             {
                 pthread_mutex_lock(&philos[i].data->death_lock);
                 philos[i].data->death = 1;
+                pthread_mutex_unlock(&philos[i].data->death_lock);
                 pthread_mutex_lock(&philos[i].data->print_lock);
                 printf("%s%zu %d %s\n%s", C_DIED, get_timestamp(philos[i].data->start_time, get_current_time()), philos[i].id, "died", C_NC);
                 pthread_mutex_unlock(&philos[i].data->print_lock);
-                pthread_mutex_unlock(&philos[i].data->death_lock);
                 pthread_mutex_unlock(&philos[i].data->time_lock);
                 return (NULL);
             }
             pthread_mutex_unlock(&philos[i].data->time_lock);
+            pthread_mutex_lock(&philos[i].data->end_lock);
+            if (philos[i].data->end == NBR)
+            {
+                pthread_mutex_unlock(&philos[i].data->end_lock);
+                return (NULL);
+            }
+            pthread_mutex_unlock(&philos[i].data->end_lock);
+            pthread_mutex_lock(&philos[i].data->meals_lock);
+            // printf("\t%d [nbr_meals: %d]\n", philos[i].id, philos[i].nbr_meals);
+            if (philos[i].nbr_meals == NBR_OF_MEALS)
+            {
+                pthread_mutex_lock(&philos[i].data->finished_lock);
+                philos[i].finished = 1;
+                pthread_mutex_unlock(&philos[i].data->finished_lock);
+            }
+            pthread_mutex_unlock(&philos[i].data->meals_lock);
             i++;
         }
+        // ft_sleep(150);
+    }
+    return (NULL);
+}
+
+    //MONITOR
+void    *monitor(void *data)
+{
+    int i;
+    t_philo *philos;
+
+    philos = (t_philo *) data;
+
+    while (1)
+    {
+        i = 0;
+        while (i < NBR)
+        {
+            pthread_mutex_lock(&philos[i].data->finished_lock);
+            // printf("\t%d [finished: %d]\n", philos[i].id, philos[i].finished);
+            if (philos[i].finished == 1)
+            {
+                pthread_mutex_lock(&philos[i].data->end_lock);
+                philos[i].data->end++;
+                // printf("end: %d\n", philos[i].data->end);
+                pthread_mutex_unlock(&philos[i].data->end_lock);
+                philos[i].finished = 2;
+            }
+            pthread_mutex_unlock(&philos[i].data->finished_lock);
+            pthread_mutex_lock(&philos[i].data->end_lock);
+            if (philos[i].data->end == NBR)
+            {
+                pthread_mutex_unlock(&philos[i].data->end_lock);
+                return (NULL);
+            }
+            pthread_mutex_unlock(&philos[i].data->end_lock);
+            i++;
+        }
+        ft_sleep(400);
     }
     return (NULL);
 }
@@ -206,6 +284,12 @@ int     init_mutexes(t_data *data)
             return (perror("death_lock"), 1);
     if (pthread_mutex_init(&data->print_lock, NULL) != 0)
             return (perror("print_lock"), 1);
+    if (pthread_mutex_init(&data->meals_lock, NULL) != 0)
+            return (perror("meals_lock"), 1);
+    if (pthread_mutex_init(&data->end_lock, NULL) != 0)
+            return (perror("end_lock"), 1);
+    if (pthread_mutex_init(&data->finished_lock, NULL) != 0)
+            return (perror("finished_lock"), 1);
     return (0);
 }
 
@@ -215,6 +299,7 @@ int    init_data(t_data *data)
     if (init_mutexes(data))
         return (1);
     data->death = 0;
+    data->end = 0;
     return (0);
 }
 
@@ -228,6 +313,8 @@ void    init_philos(t_philo *philos, t_data *data)
     {
 
             philos[i].id = i + 1;
+            philos[i].nbr_meals = 0;
+            philos[i].finished = 0;
             philos[i].data = data;
             philos[i].last_meal = data->start_time;
             philos[i].r_fork = &data->forks[i];
@@ -256,6 +343,8 @@ int    start_simulation(t_philo *philos, t_data *data)
     }
     if (pthread_create(&data->sup_tid, NULL, supervisor, philos))
                 return (perror("supervisor"), 1);
+    if (pthread_create(&data->mon_tid, NULL, monitor, philos))
+                return (perror("monitor"), 1);
     return (0);
 }
 
@@ -276,6 +365,12 @@ int     destroy_mutexes(t_data *data)
         return (perror("death_lock"), 1);
     if (pthread_mutex_destroy(&data->print_lock) != 0)
         return (perror("print_lock"), 1);
+    if (pthread_mutex_destroy(&data->end_lock) != 0)
+        return (perror("end_lock"), 1);
+    if (pthread_mutex_destroy(&data->finished_lock) != 0)
+        return (perror("finished_lock"), 1);
+    if (pthread_mutex_destroy(&data->meals_lock) != 0)
+        return (perror("meals_lock"), 1);
     return (0);
 }
 
@@ -291,7 +386,9 @@ int    end_simulation(t_philo *philos, t_data *data)
         i++;
     }
     if (pthread_join(data->sup_tid, NULL))
-                return (perror("supervisor"), 1);
+        return (perror("supervisor"), 1);
+    if (pthread_join(data->mon_tid, NULL))
+        return (perror("monitor"), 1);
     if (destroy_mutexes(data))
         return (1);
     return (0);

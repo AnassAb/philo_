@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/24 17:14:07 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/24 19:08:20 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/24 19:45:50 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define NBR 3
-#define TIME_TO_DIE 750
+#define NBR 5
+#define TIME_TO_DIE 600
 #define TIME_TO_EAT 200
 #define TIME_TO_SLEEP 100
 #define NBR_OF_MEALS -1
@@ -142,9 +142,8 @@ void    *routine(void *data)
 
     philo = (t_philo *) data;
 
-    if ((philo->id % 2))
-        ft_sleep(60);
-
+    if (_think(philo))
+            return (NULL);
     while (1)
     {
         if (_eat(philo))
@@ -153,6 +152,7 @@ void    *routine(void *data)
             break;
         if (_think(philo))
             break;
+        ft_sleep((TIME_TO_DIE - (get_current_time() - philo->last_meal)) / 2);
     }
     return (NULL);
 }
@@ -232,7 +232,7 @@ void    init_philos(t_philo *philos, t_data *data)
             philos[i].last_meal = data->start_time;
             philos[i].r_fork = &data->forks[i];
             philos[i].l_fork = &data->forks[((i + 1) % NBR)];
-            if (i == NBR - 1)
+            if (i % 2)
             {
                 philos[i].l_fork = &data->forks[i];
                 philos[i].r_fork = &data->forks[((i + 1) % NBR)];

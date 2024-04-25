@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   simulation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:05:18 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 14:02:17 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 18:27:44 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	init_mutexes(t_data *data)
 		return (perror("death_lock"), 1);
 	if (pthread_mutex_init(&data->print_lock, NULL) != 0)
 		return (perror("print_lock"), 1);
-	if (data->nbr_of_meals >= 0)
+	if (data->nbr_of_meals > -1)
 	{
 		if (pthread_mutex_init(&data->meals_lock, NULL) != 0)
 			return (perror("meals_lock"), 1);
@@ -75,7 +75,7 @@ int	start_simulation(t_philo *philos, t_data *data)
 {
 	int	i;
 
-	if (data->nbr_of_meals >= 0)
+	if (data->nbr_of_meals > -1)
 		if (pthread_create(&data->mon_tid, NULL, monitor, philos))
 			return (perror("monitor"), 1);
 	if (pthread_create(&data->sup_tid, NULL, supervisor, philos))
@@ -108,7 +108,7 @@ int	destroy_mutexes(t_data *data)
 		return (perror("death_lock"), 1);
 	if (pthread_mutex_destroy(&data->print_lock) != 0)
 		return (perror("print_lock"), 1);
-	if (data->nbr_of_meals >= 0)
+	if (data->nbr_of_meals > -1)
 	{
 		if (pthread_mutex_destroy(&data->meals_lock) != 0)
 			return (perror("meals_lock"), 1);
@@ -124,7 +124,7 @@ int	end_simulation(t_philo *philos, t_data *data)
 {
 	int	i;
 
-	if (data->nbr_of_meals >= 0)
+	if (data->nbr_of_meals > -1)
 		if (pthread_join(data->mon_tid, NULL))
 			return (perror("monitor"), 1);
 	if (pthread_join(data->sup_tid, NULL))

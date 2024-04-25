@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 12:46:24 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 14:03:41 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 18:41:06 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,21 @@ int	parse_data(t_data *data, int ac, char **av)
 		return (printf("Error: %s\n", USAGE), 1);
 	data->philo_nbr = ft_atoi(av[1]);
 	if (data->philo_nbr < 1 || data->philo_nbr > 200)
-		return (printf("Error: 0 < number_of_philosophers < 200\n"), 1);
+		return (printf("Error: 0<nbr_philos [%d]<=200\n", data->philo_nbr), 1);
 	data->time_to_die = ft_atoi(av[2]);
 	if (data->time_to_die < 60)
-		return (printf("Error: time_to_die > 60\n"), 1);
+		return (printf("Error: time_to_die [%zd]\n", data->time_to_die), 1);
 	data->time_to_eat = ft_atoi(av[3]);
 	if (data->time_to_eat < 60)
-		return (printf("Error: time_to_eat > 60\n"), 1);
+		return (printf("Error: time_to_eat [%zd]\n", data->time_to_eat), 1);
 	data->time_to_sleep = ft_atoi(av[4]);
 	if (data->time_to_sleep < 60)
-		return (printf("Error: time_to_sleep > 60\n"), 1);
+		return (printf("Error: time_to_sleep [%zd]\n", data->time_to_sleep), 1);
 	if (ac == 6)
 	{
 		data->nbr_of_meals = ft_atoi(av[5]);
-		if (data->nbr_of_meals < 1)
-			return (printf("Error: number of meals > 1\n"), 1);
+		if (data->nbr_of_meals < 0)
+			return (printf("Error: nbrofmeals [%d]\n", data->nbr_of_meals), 1);
 	}
 	else
 		data->nbr_of_meals = -1;

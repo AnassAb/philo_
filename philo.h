@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:06:21 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 14:05:32 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 18:41:15 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <pthread.h>
 # include <stdio.h>
+# include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
 
@@ -29,9 +30,9 @@
 typedef struct s_data
 {
 	int				philo_nbr;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
+	ssize_t			time_to_die;
+	ssize_t			time_to_eat;
+	ssize_t			time_to_sleep;
 	int				nbr_of_meals;
 	size_t			start_time;
 	pthread_mutex_t	*forks;
@@ -53,15 +54,15 @@ typedef struct s_philo
 	pthread_t		thread;
 	pthread_mutex_t	*l_fork;
 	pthread_mutex_t	*r_fork;
-	size_t			last_meal;
+	ssize_t			last_meal;
 	int				nbr_meals;
 	int				finished;
 	t_data			*data;
 }					t_philo;
 
 // UTILS
-size_t				get_current_time(void);
-size_t				get_timestamp(size_t start, size_t end);
+ssize_t				get_current_time(void);
+ssize_t				get_timestamp(ssize_t start, ssize_t end);
 void				ft_sleep(size_t time_ms);
 int					message(t_philo *philo, char *state, char *color);
 int					case_one(t_philo *philo);

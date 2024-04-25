@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:41:05 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:41:16 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:24:58 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ int	ft_atoi(char *s)
 	sign = 1;
 	res = 0;
 	if (is_invalid_number(s))
-		err_atoi(s);
+		return (-1);
 	while (ft_isspace(*s))
 		s++;
 	if (*s == '-' || *s == '+')
@@ -74,6 +74,6 @@ int	ft_atoi(char *s)
 		s++;
 	}
 	if ((res * sign) > 2147483647 || (res * sign) < -2147483648)
-		err_atoi(s);
+		return (-1);
 	return (res * sign);
 }

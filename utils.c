@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:00:32 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:01:46 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:22:18 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-size_t	get_current_time(void)
+ssize_t	get_current_time(void)
 {
 	struct timeval	tv;
 
@@ -20,7 +20,7 @@ size_t	get_current_time(void)
 	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-size_t	get_timestamp(size_t start, size_t end)
+ssize_t	get_timestamp(ssize_t start, ssize_t end)
 {
 	return (end - start);
 }

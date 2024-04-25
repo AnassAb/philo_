@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
+/*   By: aabidar <aabidar@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 12:59:03 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:51:04 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 18:42:38 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	_eat(t_philo *philo)
 	philo->last_meal = get_current_time();
 	pthread_mutex_unlock(&philo->data->time_lock);
 	ft_sleep(philo->data->time_to_eat);
-	if (philo->data->nbr_of_meals >= 0)
+	if (philo->data->nbr_of_meals > -1)
 	{
 		pthread_mutex_lock(&philo->data->meals_lock);
 		philo->nbr_meals++;
@@ -74,14 +74,14 @@ void	*routine(void *data)
 	t_philo	*philo;
 
 	philo = (t_philo *)data;
-	if ((philo->id % 2))
-		ft_sleep(60);
 	if (_think(philo))
 		return (NULL);
 	if (philo->data->philo_nbr == 1 && case_one(philo))
 		return (NULL);
-	while (!is_finished(philo))
+	while (1)
 	{
+		if (philo->data->nbr_of_meals > -1 && is_finished(philo))
+			break ;
 		if (_eat(philo))
 			break ;
 		if (_sleep(philo))

@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 12:46:24 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 14:01:38 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:03:41 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,7 @@ int	parse_data(t_data *data, int ac, char **av)
 	{
 		data->nbr_of_meals = ft_atoi(av[5]);
 		if (data->nbr_of_meals < 1)
-			return (printf("Error: number_of_times_each_philosopher_must_eat > 1\n"),
-				1);
+			return (printf("Error: number of meals > 1\n"), 1);
 	}
 	else
 		data->nbr_of_meals = -1;

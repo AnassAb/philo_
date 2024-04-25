@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:06:21 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:52:45 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:05:32 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # define C_SLEEP "\033[0;34m" // SLEEP
 # define C_NC "\033[0m"
 
-# define USAGE "./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]"
+# define USAGE "./philo nbr_of_philos time_to[die eat sleep] [nbr_of_meals]"
 
 typedef struct s_data
 {

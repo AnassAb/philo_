@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:06:21 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:12:14 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 13:52:45 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,22 +18,23 @@
 # include <sys/time.h>
 # include <unistd.h>
 
-# define NBR 5
-# define TIME_TO_DIE 800
-# define TIME_TO_EAT 200
-# define TIME_TO_SLEEP 200
-# define NBR_OF_MEALS 7
-
 # define C_EAT "\033[0;32m"   // EAT
 # define C_DIED "\033[0;31m"  // DIED
 # define C_THINK "\033[0;33m" // THINK
 # define C_SLEEP "\033[0;34m" // SLEEP
 # define C_NC "\033[0m"
 
+# define USAGE "./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]"
+
 typedef struct s_data
 {
+	int				philo_nbr;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				nbr_of_meals;
 	size_t			start_time;
-	pthread_mutex_t	forks[NBR];
+	pthread_mutex_t	*forks;
 	pthread_mutex_t	time_lock;
 	pthread_mutex_t	death_lock;
 	pthread_mutex_t	print_lock;
@@ -64,6 +65,7 @@ size_t				get_timestamp(size_t start, size_t end);
 void				ft_sleep(size_t time_ms);
 int					message(t_philo *philo, char *state, char *color);
 int					case_one(t_philo *philo);
+int					ft_atoi(char *s);
 
 // CHECKERS
 int					check_death(t_philo *philo);

@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:01:58 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:03:06 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 13:49:26 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 // SUPERVISOR
 void	finished_eating(t_philo *philo)
 {
-	if (NBR_OF_MEALS >= 0)
+	if (philo->data->nbr_of_meals >= 0)
 	{
 		pthread_mutex_lock(&philo->data->meals_lock);
-		if (philo->nbr_meals == NBR_OF_MEALS)
+		if (philo->nbr_meals == philo->data->nbr_of_meals)
 		{
 			pthread_mutex_lock(&philo->data->finished_lock);
 			philo->finished = 1;
@@ -37,7 +37,7 @@ void	*supervisor(void *data)
 	while (1)
 	{
 		i = 0;
-		while (i < NBR)
+		while (i < philos[i].data->philo_nbr)
 		{
 			if (is_ended(&philos[i]))
 				return (NULL);
@@ -67,7 +67,7 @@ void	*monitor(void *data)
 	while (1)
 	{
 		i = 0;
-		while (i < NBR)
+		while (i < philos[i].data->philo_nbr)
 		{
 			if (is_dead(&philos[i]) || is_ended(&philos[i]))
 				return (NULL);

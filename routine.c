@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 12:59:03 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:00:00 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 13:51:04 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,8 @@ int	_eat(t_philo *philo)
 	pthread_mutex_lock(&philo->data->time_lock);
 	philo->last_meal = get_current_time();
 	pthread_mutex_unlock(&philo->data->time_lock);
-	ft_sleep(TIME_TO_EAT);
-	if (NBR_OF_MEALS >= 0)
+	ft_sleep(philo->data->time_to_eat);
+	if (philo->data->nbr_of_meals >= 0)
 	{
 		pthread_mutex_lock(&philo->data->meals_lock);
 		philo->nbr_meals++;
@@ -58,7 +58,7 @@ int	_sleep(t_philo *philo)
 {
 	if (message(philo, "is sleeping", C_SLEEP))
 		return (1);
-	ft_sleep(TIME_TO_SLEEP);
+	ft_sleep(philo->data->time_to_sleep);
 	return (0);
 }
 
@@ -78,7 +78,7 @@ void	*routine(void *data)
 		ft_sleep(60);
 	if (_think(philo))
 		return (NULL);
-	if (NBR == 1 && case_one(philo))
+	if (philo->data->philo_nbr == 1 && case_one(philo))
 		return (NULL);
 	while (!is_finished(philo))
 	{
@@ -88,7 +88,8 @@ void	*routine(void *data)
 			break ;
 		if (_think(philo))
 			break ;
-		ft_sleep((TIME_TO_DIE - (get_current_time() - philo->last_meal)) / 2);
+		ft_sleep((philo->data->time_to_die - (get_current_time()
+					- philo->last_meal)) / 2);
 	}
 	return (NULL);
 }

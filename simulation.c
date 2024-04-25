@@ -6,7 +6,7 @@
 /*   By: aabidar <aabidar@student.1337.ma>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/25 13:05:18 by aabidar           #+#    #+#             */
-/*   Updated: 2024/04/25 13:05:59 by aabidar          ###   ########.fr       */
+/*   Updated: 2024/04/25 14:02:17 by aabidar          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ int	init_mutexes(t_data *data)
 	int	i;
 
 	i = 0;
-	while (i < NBR)
+	while (i < data->philo_nbr)
 	{
 		if (pthread_mutex_init(&data->forks[i], NULL) != 0)
 			return (perror("fork"), 1);
@@ -30,7 +30,7 @@ int	init_mutexes(t_data *data)
 		return (perror("death_lock"), 1);
 	if (pthread_mutex_init(&data->print_lock, NULL) != 0)
 		return (perror("print_lock"), 1);
-	if (NBR_OF_MEALS >= 0)
+	if (data->nbr_of_meals >= 0)
 	{
 		if (pthread_mutex_init(&data->meals_lock, NULL) != 0)
 			return (perror("meals_lock"), 1);
@@ -52,7 +52,7 @@ int	init_data(t_philo *philos, t_data *data)
 	data->death = 0;
 	data->end = 0;
 	i = 0;
-	while (i < NBR)
+	while (i < data->philo_nbr)
 	{
 		philos[i].id = i + 1;
 		philos[i].data = data;
@@ -60,11 +60,11 @@ int	init_data(t_philo *philos, t_data *data)
 		philos[i].finished = 0;
 		philos[i].last_meal = data->start_time;
 		philos[i].r_fork = &data->forks[i];
-		philos[i].l_fork = &data->forks[((i + 1) % NBR)];
-		if (i == NBR - 1)
+		philos[i].l_fork = &data->forks[((i + 1) % data->philo_nbr)];
+		if (i == data->philo_nbr - 1)
 		{
 			philos[i].l_fork = &data->forks[i];
-			philos[i].r_fork = &data->forks[((i + 1) % NBR)];
+			philos[i].r_fork = &data->forks[((i + 1) % data->philo_nbr)];
 		}
 		i++;
 	}
@@ -75,13 +75,13 @@ int	start_simulation(t_philo *philos, t_data *data)
 {
 	int	i;
 
-	if (NBR_OF_MEALS >= 0)
+	if (data->nbr_of_meals >= 0)
 		if (pthread_create(&data->mon_tid, NULL, monitor, philos))
 			return (perror("monitor"), 1);
 	if (pthread_create(&data->sup_tid, NULL, supervisor, philos))
 		return (perror("supervisor"), 1);
 	i = 0;
-	while (i < NBR)
+	while (i < data->philo_nbr)
 	{
 		if (pthread_create(&philos[i].thread, NULL, routine, &philos[i]))
 			return (perror("philo"), 1);
@@ -96,7 +96,7 @@ int	destroy_mutexes(t_data *data)
 	int	i;
 
 	i = 0;
-	while (i < NBR)
+	while (i < data->philo_nbr)
 	{
 		if (pthread_mutex_destroy(&data->forks[i]) != 0)
 			return (perror("fork"), 1);
@@ -108,7 +108,7 @@ int	destroy_mutexes(t_data *data)
 		return (perror("death_lock"), 1);
 	if (pthread_mutex_destroy(&data->print_lock) != 0)
 		return (perror("print_lock"), 1);
-	if (NBR_OF_MEALS >= 0)
+	if (data->nbr_of_meals >= 0)
 	{
 		if (pthread_mutex_destroy(&data->meals_lock) != 0)
 			return (perror("meals_lock"), 1);
@@ -124,13 +124,13 @@ int	end_simulation(t_philo *philos, t_data *data)
 {
 	int	i;
 
-	if (NBR_OF_MEALS >= 0)
+	if (data->nbr_of_meals >= 0)
 		if (pthread_join(data->mon_tid, NULL))
 			return (perror("monitor"), 1);
 	if (pthread_join(data->sup_tid, NULL))
 		return (perror("supervisor"), 1);
 	i = 0;
-	while (i < NBR)
+	while (i < data->philo_nbr)
 	{
 		if (pthread_join(philos[i].thread, NULL) != 0)
 			return (perror("philo"), 1);
@@ -138,5 +138,7 @@ int	end_simulation(t_philo *philos, t_data *data)
 	}
 	if (destroy_mutexes(data))
 		return (1);
+	free(data->forks);
+	free(philos);
 	return (0);
 }
